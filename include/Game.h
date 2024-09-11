@@ -37,4 +37,4 @@ private:
     const char* title;
 };
 
-#endif
+#endif //GAME_H

@@ -1,6 +1,7 @@
 #include "Game.h"
 #include <iostream>
 #include <GL/glew.h>
+//#include <thread>
 #include "Config.h"
 
 Game::Game() : isRunning(false), window(nullptr), glContext(nullptr),
@@ -76,7 +77,7 @@ void Game::Init()
     camera = new Camera();        // Initialize the camera
     noise = new Noise(MapConfig::MAP_NOISE_SEED);
     map = new Map(*noise);              // Initialize the procedural map
-    map->UpdateChunkRenderBuffer(*camera);
+    map->UpdateChunkRenderBuffer(*camera, true);
     inputManager = new InputManager();  // Initialize input manager
 
     isRunning = true;
@@ -84,6 +85,7 @@ void Game::Init()
 
 void Game::Run() 
 {
+    std::cout << "Running game" << std::endl;
     while (isRunning) 
     {
         HandleInput();
@@ -133,7 +135,7 @@ void Game::HandleInput()
 
     if (inputManager->IsKeyJustPressed(SDLK_0))
     {
-        map->UpdateChunkRenderBuffer(*camera);
+        map->UpdateChunkRenderBuffer(*camera, true);
     }
 
     if (inputManager->IsKeyJustPressed(SDLK_9))
@@ -151,7 +153,7 @@ void Game::HandleInput()
 
 void Game::Update() 
 {
-    map->UpdateChunkRenderBuffer(*camera);
+    map->UpdateChunkRenderBuffer(*camera, false);
 }
 
 void Game::Render() 

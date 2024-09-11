@@ -1,27 +1,30 @@
-# Compiler
-CXX = g++
-CXXFLAGS = -g -Iinclude
+# Compiler and linker
+CC = g++
+CFLAGS = -I include -I /ucrt64/include/SDL2 -I /ucrt64/include/GLM
+LDFLAGS = -L /ucrt64/lib -lmingw32 -lSDL2main -lSDL2 -lopengl32 -lglew32
 
-# Output executable
-TARGET = build/main.exe
+# Directories
+SRC_DIR = src
+BUILD_DIR = build
+INCLUDE_DIR = include
 
-# Find all .cpp files in src/
-SRC = $(wildcard src/*.cpp)
+# Target binary
+TARGET = $(BUILD_DIR)/game.exe
+
+# Source files
+SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 
 # Object files
-OBJ = $(SRC:.cpp=.o)
+OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 
-# Default target
+# Build rules
 all: $(TARGET)
 
-# Link object files to create executable
-$(TARGET): $(OBJ)
-	$(CXX) -o $@ $^ -Llib/SDL2 -Llib -lSDL2 -lglew32 -lopengl32 -mwindows
+$(TARGET): $(OBJS)
+	$(CC) -o $(TARGET) $(OBJS) $(LDFLAGS)
 
-# Compile .cpp files into .o files
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# Clean target to remove object files and executable
 clean:
-	rm -f src/*.o $(TARGET)
+	rm -rf $(BUILD_DIR)/*.o $(TARGET)

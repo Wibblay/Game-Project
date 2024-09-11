@@ -3,10 +3,15 @@
 
 #include <unordered_map>
 #include <memory>
+#include <future>
+#include <mutex>
+#include <thread>
+#include <shared_mutex>
 #include <glm/glm.hpp>
 #include "Chunk.h"
 #include "Camera.h"
 #include "Noise.h"
+//#include "ThreadPool.h"
 
 class Renderer;
 
@@ -25,7 +30,7 @@ public:
     Map(Noise& noise);
     ~Map() = default;
 
-    void UpdateChunkRenderBuffer(Camera& camera);
+    void UpdateChunkRenderBuffer(Camera& camera, const bool& forcePreload);
     void DebugRenderBuffer() const;
 
     //Getters
@@ -34,14 +39,19 @@ public:
 
 private:
     void PreloadChunks(const glm::vec2& centerChunkCoords, const int& renderChunkRadius);
+    void PreloadChunksAsync(const glm::vec2& centerChunkCoords, const int& renderChunkRadius);
+    void WaitForPreload();
     void UnloadDistantChunks(const glm::vec2& centerChunkCoords, const int& renderChunkRadius);
     Chunk* LoadOrGenerateChunk(const glm::vec2& chunkCoords);
     
     std::unordered_map<glm::vec2, std::unique_ptr<Chunk>, vec2_hash> fullChunkMap;  // All generated chunks
     std::unordered_map<glm::vec2, std::unique_ptr<Chunk>, vec2_hash> chunkCache;    // 5x5 chunk cache
     std::vector<std::vector<std::unique_ptr<Chunk>>> renderBuffer;                  // 3x3 render buffer
-    Noise& map_noise;
-
+    glm::vec2 prevCenterChunkCoords;
+    Noise& mapNoise;
+    std::mutex chunkCacheMutex;
+    std::shared_mutex fullMapMutex;
+    //ThreadPool mapThreadPool;
 };
 
 #endif //MAP_H
