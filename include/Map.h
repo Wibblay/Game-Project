@@ -3,15 +3,10 @@
 
 #include <unordered_map>
 #include <memory>
-#include <future>
-#include <mutex>
-#include <thread>
-#include <shared_mutex>
 #include <glm/glm.hpp>
 #include "Chunk.h"
 #include "Camera.h"
 #include "Noise.h"
-//#include "ThreadPool.h"
 
 class Renderer;
 
@@ -30,28 +25,18 @@ public:
     Map(Noise& noise);
     ~Map() = default;
 
-    void UpdateChunkRenderBuffer(Camera& camera, const bool& forcePreload);
+    void UpdateChunkRenderBuffer(const Camera& camera, const bool& forceBufferUpdate);    //Prepare chunks for rendering
+    
+    const std::vector<std::vector<std::shared_ptr<Chunk>>>& GetRenderBuffer() const;      //Get the buffer of chunks to be rendered
+    std::shared_ptr<Chunk>& GetChunk(const glm::vec2& chunkCoords);                       // Get a single chunk
+
+private: 
     void DebugRenderBuffer() const;
 
-    //Getters
-    const std::vector<std::vector<std::unique_ptr<Chunk>>>& GetRenderBuffer() const; //Get the buffer of chunks to be rendered
-    std::unique_ptr<Chunk>& GetChunk(glm::vec2 chunkCoords);             // Get a single chunk
-
-private:
-    void PreloadChunks(const glm::vec2& centerChunkCoords, const int& renderChunkRadius);
-    void PreloadChunksAsync(const glm::vec2& centerChunkCoords, const int& renderChunkRadius);
-    void WaitForPreload();
-    void UnloadDistantChunks(const glm::vec2& centerChunkCoords, const int& renderChunkRadius);
-    Chunk* LoadOrGenerateChunk(const glm::vec2& chunkCoords);
-    
-    std::unordered_map<glm::vec2, std::unique_ptr<Chunk>, vec2_hash> fullChunkMap;  // All generated chunks
-    std::unordered_map<glm::vec2, std::unique_ptr<Chunk>, vec2_hash> chunkCache;    // 5x5 chunk cache
-    std::vector<std::vector<std::unique_ptr<Chunk>>> renderBuffer;                  // 3x3 render buffer
+    std::unordered_map<glm::vec2, std::shared_ptr<Chunk>, vec2_hash> fullChunkMap;  // All generated chunks
+    std::vector<std::vector<std::shared_ptr<Chunk>>> renderBuffer;                  // 3x3 render buffer
     glm::vec2 prevCenterChunkCoords;
     Noise& mapNoise;
-    std::mutex chunkCacheMutex;
-    std::shared_mutex fullMapMutex;
-    //ThreadPool mapThreadPool;
 };
 
 #endif //MAP_H

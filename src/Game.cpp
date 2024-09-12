@@ -153,7 +153,7 @@ void Game::HandleInput()
 
 void Game::Update() 
 {
-    map->UpdateChunkRenderBuffer(*camera, false);
+    map->UpdateChunkRenderBuffer(*camera, true); //set back to false
 }
 
 void Game::Render() 

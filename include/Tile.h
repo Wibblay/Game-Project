@@ -13,4 +13,4 @@ struct Tile
         : tileCoords(_tileCoords), type(_type), height(_height) {}
 };
 
-#endif
+#endif //TILE_H

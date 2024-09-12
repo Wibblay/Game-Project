@@ -47,34 +47,32 @@ void Renderer::RenderChunk(const Chunk& chunk, const glm::vec2& cameraCoords, co
     {
 
         // Adjust the world coordinates based on the camera rotation
+        glm::vec2 translatedCoords = tile.tileCoords - cameraCoords;
         float rotatedX, rotatedY;
 
         switch (rotation) {
             case 0:  // 0° (default)
-                rotatedX = tile.tileCoords.x;
-                rotatedY = tile.tileCoords.y;
+                rotatedX = translatedCoords.x;
+                rotatedY = translatedCoords.y;
                 break;
             case 1:  // 90° clockwise
-                rotatedX = tile.tileCoords.y;
-                rotatedY = -tile.tileCoords.x;
+                rotatedX = translatedCoords.y;
+                rotatedY = -translatedCoords.x;
                 break;
             case 2:  // 180° (flipped)
-                rotatedX = -tile.tileCoords.x;
-                rotatedY = -tile.tileCoords.y;
+                rotatedX = -translatedCoords.x;
+                rotatedY = -translatedCoords.y;
                 break;
             case 3:  // 270° clockwise
-                rotatedX = -tile.tileCoords.y;
-                rotatedY = tile.tileCoords.x;
+                rotatedX = -translatedCoords.y;
+                rotatedY = translatedCoords.x;
                 break;
         }
 
-        // Adjust for the camera's position
-        float screenX = rotatedX - cameraCoords.x;
-        float screenY = rotatedY - cameraCoords.y;
         
         // Convert grid coordinates to isometric screen coordinates
-        float isoX = (screenX - screenY) * (tileSize / 2);
-        float isoY = (screenX + screenY) * (tileSize / 2);
+        float isoX = (rotatedX - rotatedY) * (tileSize / 2);
+        float isoY = (rotatedX + rotatedY) * (tileSize / 2);
 
         // Render the tile at the calculated isometric screen position
         RenderTile(tile, isoX, isoY, tileSize);

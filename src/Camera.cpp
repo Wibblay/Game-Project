@@ -8,7 +8,23 @@ Camera::~Camera() {}
 
 void Camera::Move(glm::vec2 delta) 
 {
-    cameraCoords += delta;
+    switch (rotation) 
+    {
+        case 0:  // 0° (default)
+            cameraCoords += delta;
+            break;
+        case 1:  // 90° clockwise
+            cameraCoords.x -= delta.y;
+            cameraCoords.y += delta.x;
+            break;
+        case 2:  // 180° (flipped)
+            cameraCoords -= delta;
+            break;
+        case 3:  // 270° clockwise
+            cameraCoords.x += delta.y;
+            cameraCoords.y -= delta.x;
+            break;
+    }  
 }
 
 void Camera::SetPosition(glm::vec2 newPosition) 
