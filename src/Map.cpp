@@ -1,16 +1,10 @@
 #include "Map.h"
 #include "Config.h"
 #include <iostream>
+#include <algorithm>
 
-Map::Map(Noise& noise) : mapNoise(noise), prevCenterChunkCoords(glm::vec2(0.0f, 0.0f)) 
-{
-    // Initialize the 3x3 renderBuffer with nullptr (empty unique_ptr<Chunk>)
-    renderBuffer.resize(MapConfig::CHUNKS_TO_RENDER_GRID_SIZE);
-    for (auto& row : renderBuffer) 
-    {
-        row.resize(MapConfig::CHUNKS_TO_RENDER_GRID_SIZE);  
-    }
-}
+Map::Map(Noise& noise) : mapNoise(noise), 
+                        prevCenterChunkCoords(glm::vec2(0.0f, 0.0f)) {}
 
 // Update the render buffer with chunks around the camera
 void Map::UpdateChunkRenderBuffer(const Camera& camera, const bool& forceBufferUpdate) 
@@ -18,13 +12,13 @@ void Map::UpdateChunkRenderBuffer(const Camera& camera, const bool& forceBufferU
     glm::vec2 centerChunkCoords = glm::floor(camera.GetCoords() / static_cast<float>(MapConfig::CHUNK_SIZE));
     if (forceBufferUpdate || centerChunkCoords != prevCenterChunkCoords) 
     {   
-       
-        int renderChunkRadius = (MapConfig::CHUNKS_TO_RENDER_GRID_SIZE - 1) / 2;
+
+        chunkRenderBuffer.clear();
 
         // Update the 3x3 render buffer with chunks around the camera
-        for (int dy = -renderChunkRadius; dy <= renderChunkRadius; ++dy) 
+        for (int dy = -1; dy <= 1; ++dy) 
         {
-            for (int dx = -renderChunkRadius; dx <= renderChunkRadius; ++dx) 
+            for (int dx = -1; dx <= 1; ++dx) 
             {
                 glm::vec2 chunkCoords = centerChunkCoords + glm::vec2(dx, dy);
 
@@ -42,18 +36,46 @@ void Map::UpdateChunkRenderBuffer(const Camera& camera, const bool& forceBufferU
                 }
 
                 // Move the chunk from the preload cache into the render buffer
-                renderBuffer[dy + 1][dx + 1] = chunkPtr;
+                chunkRenderBuffer.push_back(chunkPtr);
             }
         }
         prevCenterChunkCoords = centerChunkCoords;
-        //DebugRenderBuffer();
     }
 }
 
-// Return the 3x3 render buffer for the renderer to use
-const std::vector<std::vector<std::shared_ptr<Chunk>>>& Map::GetRenderBuffer() const
+void Map::UpdateTileRenderBuffer(const Camera& camera)
 {
-    return renderBuffer;
+    tileRenderBuffer.clear();
+    glm::vec2 cameraPosition = camera.GetCoords();
+    int cameraRotation = camera.GetRotation();
+    float halfTileSize = camera.GetZoomLevel() * 0.5f;
+    glm::mat2 transformMatrix = Map::isoMatrix * Map::rotationMatrices[cameraRotation] * halfTileSize;
+
+    for (const auto& chunkPtr : chunkRenderBuffer)
+    {
+        if (chunkPtr)
+        {
+            const auto& tiles = chunkPtr->GetTiles();
+            for (const auto& tile: tiles)
+            {
+                Tile tileToRender = tile;
+                tileToRender.tileCoords = transformMatrix * (tileToRender.tileCoords - cameraPosition);
+                tileRenderBuffer.push_back(tileToRender);
+            }
+        }
+    }
+
+    std::sort(tileRenderBuffer.begin(), tileRenderBuffer.end(), [](const Tile& a, const Tile& b)
+    {
+        return a.tileCoords.y < b.tileCoords.y;
+    });
+}
+
+const std::vector<Tile>& Map::CollectTileRenderData(const Camera& camera)
+{
+    UpdateChunkRenderBuffer(camera, false);
+    UpdateTileRenderBuffer(camera);
+    return tileRenderBuffer;
 }
 
 std::shared_ptr<Chunk>& Map::GetChunk(const glm::vec2& chunkCoords)
@@ -64,25 +86,4 @@ std::shared_ptr<Chunk>& Map::GetChunk(const glm::vec2& chunkCoords)
         it = fullChunkMap.emplace(chunkCoords, std::make_shared<Chunk>(chunkCoords, mapNoise)).first;
     }
     return it->second;
-}
-
-void Map::DebugRenderBuffer() const 
-{
-    std::cout << "Render Buffer Contents:" << std::endl;
-
-    for (int y = 0; y < 3; ++y) 
-    {
-        for (int x = 0; x < 3; ++x) 
-        {
-            if (renderBuffer[y][x]) 
-            {
-                glm::vec2 chunkPos = renderBuffer[y][x]->GetCoords();
-                std::cout << "[" << chunkPos.x << ", " << chunkPos.y << "] ";
-            } else 
-            {
-                std::cout << "[null] ";
-            }
-        }
-        std::cout << std::endl;
-    }
 }

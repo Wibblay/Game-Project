@@ -2,6 +2,8 @@
 #include <GL/glew.h>
 #include "Config.h"
 #include <iostream>
+#include <vector>
+#include <algorithm>
 
 Renderer::Renderer() {}
 
@@ -11,87 +13,100 @@ void Renderer::InitOpenGL()
 {
     // Set background clear color and enable depth test
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);  // Dark green background
-    glEnable(GL_DEPTH_TEST);
 }
 
-void Renderer::RenderMap(const Map& map, const Camera& camera) 
+void Renderer::RenderMap(Map& map, const Camera& camera) 
 {
-    auto& renderBuffer = map.GetRenderBuffer();
-    //look at render buffer
-    glm::vec2 cameraCoords = camera.GetCoords();
-    float zoomLevel = camera.GetZoomLevel();
+    const std::vector<Tile>& renderBuffer = map.CollectTileRenderData(camera);
+    float tileSize = camera.GetZoomLevel();
     int rotation = camera.GetRotation();
-
-    // Loop through the 3x3 buffer and render each chunk
-    for (int y = 0; y < MapConfig::CHUNKS_TO_RENDER_GRID_SIZE; ++y) 
+    
+    for (auto& tile : renderBuffer)
     {
-        for (int x = 0; x < MapConfig::CHUNKS_TO_RENDER_GRID_SIZE; ++x) 
-        {
-            if (renderBuffer[y][x]) 
-            {
-                RenderChunk(*renderBuffer[y][x], cameraCoords, zoomLevel, rotation);
-            }
-        }
+        RenderTile(tile, tileSize, rotation);
     }
 }
 
-void Renderer::RenderChunk(const Chunk& chunk, const glm::vec2& cameraCoords, const float& zoomLevel, const int rotation)
+void Renderer::RenderTile(const Tile& tile, const float& tileSize, const int& rotation)
 {
-    float tileSize = zoomLevel;   // Width of the tile
-
-    // Get the chunk and its tiles
-    const std::vector<Tile>& tiles = chunk.GetTiles();
-
-    // Render all tiles in the chunk
-    for (const Tile& tile : tiles) 
-    {
-
-        // Adjust the world coordinates based on the camera rotation
-        glm::vec2 translatedCoords = tile.tileCoords - cameraCoords;
-        float rotatedX, rotatedY;
-
-        switch (rotation) {
-            case 0:  // 0° (default)
-                rotatedX = translatedCoords.x;
-                rotatedY = translatedCoords.y;
-                break;
-            case 1:  // 90° clockwise
-                rotatedX = translatedCoords.y;
-                rotatedY = -translatedCoords.x;
-                break;
-            case 2:  // 180° (flipped)
-                rotatedX = -translatedCoords.x;
-                rotatedY = -translatedCoords.y;
-                break;
-            case 3:  // 270° clockwise
-                rotatedX = -translatedCoords.y;
-                rotatedY = translatedCoords.x;
-                break;
-        }
-
-        
-        // Convert grid coordinates to isometric screen coordinates
-        float isoX = (rotatedX - rotatedY) * (tileSize / 2);
-        float isoY = (rotatedX + rotatedY) * (tileSize / 2);
-
-        // Render the tile at the calculated isometric screen position
-        RenderTile(tile, isoX, isoY, tileSize);
+    RenderTopFace(tile, tileSize);
+    if (tile.sideFacesVisibleFlags[rotation]){
+        // RenderLeftFace(tile, tileSize);
+        // RenderRightFace(tile, tileSize);
+        RenderSideFaces(tile, tileSize);
     }
+    
 }
 
-void Renderer::RenderTile(const Tile& tile, float isoX, float isoY, float tileSize)
+void Renderer::RenderTopFace(const Tile& tile, const float& tileSize)
 {
-    glBegin(GL_QUADS);  // Use OpenGL's immediate mode for simplicity
+    // Render the top face (normal fill)
+    glBegin(GL_QUADS);
+    glColor3f(0.14f, 0.9f, 0.37f);  // Tile color
 
-    // Set the color (for now, all tiles are the same color)
-    float color = tile.height / 10.0f;  // Normalize height to a color value
-    glColor3f(0.0f, color, 0.0f);  // Green color for the tile
+    glVertex2f(tile.tileCoords.x, tile.tileCoords.y - (tileSize / 2) + tile.height);  // Top
+    glVertex2f(tile.tileCoords.x + (tileSize / 2), tile.tileCoords.y + tile.height);  // Right
+    glVertex2f(tile.tileCoords.x, tile.tileCoords.y + (tileSize / 2) + tile.height);  // Bottom
+    glVertex2f(tile.tileCoords.x - (tileSize / 2), tile.tileCoords.y + tile.height);  // Left
 
-    // Define the 4 vertices of the square (in screen coordinates)
-    glVertex2f(isoX, isoY - (tileSize / 2));                // Top
-    glVertex2f(isoX + (tileSize / 2), isoY);                // Right
-    glVertex2f(isoX, isoY + (tileSize / 2));                // Bottom
-    glVertex2f(isoX - (tileSize / 2), isoY);                // Left
+    glEnd();
+
+    // // Render the outline (wireframe mode)
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  // Set to wireframe mode
+    // glLineWidth(2.0f);  // Set the width of the line (thickness)
+    // glColor3f(0.2f, 0.2f, 0.2f);  // Dark grey for outline
+
+    // glBegin(GL_QUADS);
+    
+    // glVertex2f(tile.tileCoords.x, tile.tileCoords.y - (tileSize / 2) + tile.height);  // Top
+    // glVertex2f(tile.tileCoords.x + (tileSize / 2), tile.tileCoords.y + tile.height);  // Right
+    // glVertex2f(tile.tileCoords.x, tile.tileCoords.y + (tileSize / 2) + tile.height);  // Bottom
+    // glVertex2f(tile.tileCoords.x - (tileSize / 2), tile.tileCoords.y + tile.height);  // Left
+
+    // glEnd();
+
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  // Set back to fill mode
+}
+
+void Renderer::RenderSideFaces(const Tile& tile, const float& tileSize)
+{
+    glBegin(GL_QUADS);
+    glColor3f(0.05f, 0.82f, 0.23f);  // Tile color
+
+    glVertex2f(tile.tileCoords.x - (tileSize / 2), tile.tileCoords.y + tile.height);  // Top Left
+    glVertex2f(tile.tileCoords.x - (tileSize / 2), tile.tileCoords.y);                // Bottom Left
+    glVertex2f(tile.tileCoords.x, tile.tileCoords.y - (tileSize / 2));                // Bottom Middle
+    glVertex2f(tile.tileCoords.x + (tileSize / 2), tile.tileCoords.y);                // Bottom Right
+    glVertex2f(tile.tileCoords.x + (tileSize / 2), tile.tileCoords.y + tile.height);  // Top Right
+    glVertex2f(tile.tileCoords.x, tile.tileCoords.y - (tileSize / 2) + tile.height);  // Top Middle
+
+    glEnd();
+}
+
+void Renderer::RenderLeftFace(const Tile& tile, const float& tileSize)
+{
+    // Render the left face (normal fill)
+    glBegin(GL_QUADS);
+    glColor3f(0.05f, 0.82f, 0.23f);  // Tile color
+
+    glVertex2f(tile.tileCoords.x - (tileSize / 2), tile.tileCoords.y + tile.height);  // Top
+    glVertex2f(tile.tileCoords.x, tile.tileCoords.y - (tileSize / 2) + tile.height);  // Right
+    glVertex2f(tile.tileCoords.x, tile.tileCoords.y - (tileSize / 2));                // Bottom
+    glVertex2f(tile.tileCoords.x - (tileSize / 2), tile.tileCoords.y);                // Left
+
+    glEnd();
+}
+
+void Renderer::RenderRightFace(const Tile& tile, const float& tileSize)
+{
+    // Render the right face (normal fill)
+    glBegin(GL_QUADS);
+    glColor3f(0.05f, 0.82f, 0.23f);  // Tile color
+
+    glVertex2f(tile.tileCoords.x + (tileSize / 2), tile.tileCoords.y + tile.height);  // Top
+    glVertex2f(tile.tileCoords.x, tile.tileCoords.y - (tileSize / 2) + tile.height);  // Left
+    glVertex2f(tile.tileCoords.x, tile.tileCoords.y - (tileSize / 2));                // Bottom
+    glVertex2f(tile.tileCoords.x + (tileSize / 2), tile.tileCoords.y);                // Right
 
     glEnd();
 }

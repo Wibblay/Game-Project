@@ -12,7 +12,7 @@ public:
     Chunk(glm::vec2 chunkCoords, Noise& noiseGenerator);
     ~Chunk();
 
-    const std::vector<Tile>& GetTiles() const;              // Get all the tiles
+    std::vector<Tile>& GetTiles();              // Get all the tiles
     const glm::vec2 GetCoords() const;                      // Get chunk coords
 
 private:

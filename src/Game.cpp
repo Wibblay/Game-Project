@@ -108,19 +108,19 @@ void Game::HandleInput()
     const float cameraSpeed = 0.05f / camera->GetZoomLevel();
     if (inputManager->IsKeyPressed(SDLK_UP)) 
     {
-        camera->Move(glm::vec2(cameraSpeed, cameraSpeed));  // Move camera up
+        camera->Move(glm::vec2(-cameraSpeed, cameraSpeed));  // Move camera up
     }
     if (inputManager->IsKeyPressed(SDLK_DOWN)) 
     {
-        camera->Move(glm::vec2(-cameraSpeed, -cameraSpeed));   // Move camera down
+        camera->Move(glm::vec2(cameraSpeed, -cameraSpeed));   // Move camera down
     }
     if (inputManager->IsKeyPressed(SDLK_LEFT)) 
     {
-        camera->Move(glm::vec2(-cameraSpeed, cameraSpeed));  // Move camera left
+        camera->Move(glm::vec2(-cameraSpeed, -cameraSpeed));  // Move camera left
     }
     if (inputManager->IsKeyPressed(SDLK_RIGHT)) 
     {
-        camera->Move(glm::vec2(cameraSpeed, -cameraSpeed));   // Move camera right
+        camera->Move(glm::vec2(cameraSpeed, cameraSpeed));   // Move camera right
     }
 
     // Rotate the camera
@@ -152,9 +152,7 @@ void Game::HandleInput()
 }
 
 void Game::Update() 
-{
-    map->UpdateChunkRenderBuffer(*camera, true); //set back to false
-}
+{}
 
 void Game::Render() 
 {

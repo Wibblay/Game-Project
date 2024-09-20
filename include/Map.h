@@ -26,17 +26,23 @@ public:
     ~Map() = default;
 
     void UpdateChunkRenderBuffer(const Camera& camera, const bool& forceBufferUpdate);    //Prepare chunks for rendering
-    
-    const std::vector<std::vector<std::shared_ptr<Chunk>>>& GetRenderBuffer() const;      //Get the buffer of chunks to be rendered
+    const std::vector<Tile>& CollectTileRenderData(const Camera& camera);
+
     std::shared_ptr<Chunk>& GetChunk(const glm::vec2& chunkCoords);                       // Get a single chunk
 
 private: 
-    void DebugRenderBuffer() const;
+    void UpdateTileRenderBuffer(const Camera& camera);
 
     std::unordered_map<glm::vec2, std::shared_ptr<Chunk>, vec2_hash> fullChunkMap;  // All generated chunks
-    std::vector<std::vector<std::shared_ptr<Chunk>>> renderBuffer;                  // 3x3 render buffer
+    std::vector<std::shared_ptr<Chunk>> chunkRenderBuffer;                  // 3x3 render buffer
+    std::vector<Tile> tileRenderBuffer;
     glm::vec2 prevCenterChunkCoords;
     Noise& mapNoise;
+    const std::vector<glm::mat2> rotationMatrices = {glm::mat2(1.0f, 0.0f, 0.0f, 1.0f),
+                                                    glm::mat2(0.0f, -1.0f, 1.0f, 0.0f),
+                                                    glm::mat2(-1.0f, 0.0f, 0.0f, -1.0f),
+                                                    glm::mat2(0.0f, 1.0f, -1.0f, 0.0f)};
+    const glm::mat2 isoMatrix = glm::mat2(1.0f, -1.0f, 1.0f, 1.0f);
 };
 
 #endif //MAP_H

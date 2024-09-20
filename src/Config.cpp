@@ -4,6 +4,13 @@
 const char* WindowConfig::WINDOW_TITLE = "2D Isometric Game";
 
 const float CameraConfig::MIN_ZOOM_LEVEL = 0.05f;
-const float CameraConfig::MAX_ZOOM_LEVEL = 5.0f;
+const float CameraConfig::MAX_ZOOM_LEVEL = 4.0f;
 const float CameraConfig::DEFAULT_ZOOM_LEVEL = 0.5f;
 const float CameraConfig::ZOOM_INCREMENT_VALUE = 0.5f;
+
+const float MapConfig::WATER_NOISE_THRESHOLD = 0.25f;
+const float MapConfig::LOWER_HILL_NOISE_THRESHOLD = 0.45f;
+const float MapConfig::UPPER_HILL_NOISE_THRESHOLD = 0.55f;
+const Color MapConfig::MAP_GRASS_COLOR(0.05f, 0.82f, 0.23f);
+const Color MapConfig::MAP_WATER_COLOR(0.13f, 0.32f, 0.96f);
+const Color MapConfig::MAP_HILL_COLOR(0.14f, 0.9f, 0.37f);
