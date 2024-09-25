@@ -7,6 +7,7 @@
 #include "Chunk.h"
 #include "Camera.h"
 #include "Noise.h"
+#include "TileRenderData.h"
 
 class Renderer;
 
@@ -26,18 +27,21 @@ public:
     ~Map() = default;
 
     void UpdateChunkRenderBuffer(const Camera& camera, const bool& forceBufferUpdate);    //Prepare chunks for rendering
-    const std::vector<Tile>& CollectTileRenderData(const Camera& camera);
+    void UpdateMapRenderBuffers(const Camera& camera, const bool& forceChunkBufferUpdate);
+    std::vector<TileRenderData>& CollectTileRenderData(const Camera& camera);
 
     std::shared_ptr<Chunk>& GetChunk(const glm::vec2& chunkCoords);                       // Get a single chunk
 
 private: 
     void UpdateTileRenderBuffer(const Camera& camera);
+    void InitializeTileTypeColors();
 
     std::unordered_map<glm::vec2, std::shared_ptr<Chunk>, vec2_hash> fullChunkMap;  // All generated chunks
     std::vector<std::shared_ptr<Chunk>> chunkRenderBuffer;                  // 3x3 render buffer
-    std::vector<Tile> tileRenderBuffer;
+    std::vector<TileRenderData> tileRenderBuffer;
     glm::vec2 prevCenterChunkCoords;
     Noise& mapNoise;
+    std::unordered_map<uint8_t, glm::vec3> tileTypeColorMap;
     const std::vector<glm::mat2> rotationMatrices = {glm::mat2(1.0f, 0.0f, 0.0f, 1.0f),
                                                     glm::mat2(0.0f, -1.0f, 1.0f, 0.0f),
                                                     glm::mat2(-1.0f, 0.0f, 0.0f, -1.0f),

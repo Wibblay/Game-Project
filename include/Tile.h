@@ -1,5 +1,4 @@
-#ifndef TILE_H
-#define TILE_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include <cstdint>
@@ -20,5 +19,3 @@ struct Tile
             sideFacesVisibleFlags[3] = true;
         }
 };
-
-#endif //TILE_H

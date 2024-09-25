@@ -4,7 +4,16 @@
 #include <algorithm>
 
 Map::Map(Noise& noise) : mapNoise(noise), 
-                        prevCenterChunkCoords(glm::vec2(0.0f, 0.0f)) {}
+                        prevCenterChunkCoords(glm::vec2(0.0f, 0.0f)) 
+{
+    InitializeTileTypeColors();
+}
+
+void Map::InitializeTileTypeColors() {
+    // For now, only one type is used
+    tileTypeColorMap[1] = glm::vec3(0.14f, 0.9f, 0.37f);  // Green color for terrain type 0
+    // Add more mappings as needed
+}
 
 // Update the render buffer with chunks around the camera
 void Map::UpdateChunkRenderBuffer(const Camera& camera, const bool& forceBufferUpdate) 
@@ -58,23 +67,32 @@ void Map::UpdateTileRenderBuffer(const Camera& camera)
             const auto& tiles = chunkPtr->GetTiles();
             for (const auto& tile: tiles)
             {
-                Tile tileToRender = tile;
-                tileToRender.tileCoords = transformMatrix * (tileToRender.tileCoords - cameraPosition);
-                tileRenderBuffer.push_back(tileToRender);
+                TileRenderData tileRenderData;
+                tileRenderData.tileCoords = tile.tileCoords;
+                tileRenderData.height = tile.height; 
+                tileRenderData.color = glm::vec3(0.14f, 0.9f, 0.37f);//tileTypeColorMap[tile.type];
+                tileRenderData.sideFacesVisibleFlag = tile.sideFacesVisibleFlags[cameraRotation];
+                tileRenderBuffer.push_back(tileRenderData);
             }
         }
     }
 
-    std::sort(tileRenderBuffer.begin(), tileRenderBuffer.end(), [](const Tile& a, const Tile& b)
-    {
-        return a.tileCoords.y < b.tileCoords.y;
-    });
+    // std::sort(tileRenderBuffer.begin(), tileRenderBuffer.end(), [](const TileRenderData& a, const TileRenderData& b) 
+    // {
+    //     float sortKeyA = a.tileCoords.x + a.tileCoords.y;
+    //     float sortKeyB = b.tileCoords.x + b.tileCoords.y;
+    //     return sortKeyA < sortKeyB;
+    // });
 }
 
-const std::vector<Tile>& Map::CollectTileRenderData(const Camera& camera)
+void Map::UpdateMapRenderBuffers(const Camera& camera, const bool& forceChunkBufferUpdate) 
 {
-    UpdateChunkRenderBuffer(camera, false);
+    UpdateChunkRenderBuffer(camera, forceChunkBufferUpdate);
     UpdateTileRenderBuffer(camera);
+}
+
+std::vector<TileRenderData>& Map::CollectTileRenderData(const Camera& camera)
+{
     return tileRenderBuffer;
 }
 

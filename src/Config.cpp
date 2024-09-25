@@ -3,10 +3,10 @@
 // Define constants that require initialization (like strings or non-primitive types)
 const char* WindowConfig::WINDOW_TITLE = "2D Isometric Game";
 
-const float CameraConfig::MIN_ZOOM_LEVEL = 0.05f;
-const float CameraConfig::MAX_ZOOM_LEVEL = 4.0f;
-const float CameraConfig::DEFAULT_ZOOM_LEVEL = 0.5f;
-const float CameraConfig::ZOOM_INCREMENT_VALUE = 0.5f;
+const float CameraConfig::MIN_ZOOM_LEVEL = 1.0f;
+const float CameraConfig::MAX_ZOOM_LEVEL = 30.0f;
+const float CameraConfig::DEFAULT_ZOOM_LEVEL = 10.0f;
+const float CameraConfig::ZOOM_INCREMENT_VALUE = 1.0f;
 
 const float MapConfig::WATER_NOISE_THRESHOLD = 0.25f;
 const float MapConfig::LOWER_HILL_NOISE_THRESHOLD = 0.45f;

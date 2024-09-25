@@ -77,7 +77,7 @@ void Game::Init()
     camera = new Camera();        // Initialize the camera
     noise = new Noise(MapConfig::MAP_NOISE_SEED);
     map = new Map(*noise);              // Initialize the procedural map
-    map->UpdateChunkRenderBuffer(*camera, true);
+    map->UpdateMapRenderBuffers(*camera, true);
     inputManager = new InputManager();  // Initialize input manager
 
     isRunning = true;
@@ -105,22 +105,22 @@ void Game::HandleInput()
     }
 
     // Camera movement controls
-    const float cameraSpeed = 0.05f / camera->GetZoomLevel();
+    const float cameraSpeed = 2.0f / camera->GetZoomLevel();
     if (inputManager->IsKeyPressed(SDLK_UP)) 
     {
-        camera->Move(glm::vec2(-cameraSpeed, cameraSpeed));  // Move camera up
+        camera->Move(glm::vec2(2 * cameraSpeed, 2 * cameraSpeed));  // Move camera up
     }
     if (inputManager->IsKeyPressed(SDLK_DOWN)) 
     {
-        camera->Move(glm::vec2(cameraSpeed, -cameraSpeed));   // Move camera down
+        camera->Move(glm::vec2(-2 * cameraSpeed, -2 * cameraSpeed));   // Move camera down
     }
     if (inputManager->IsKeyPressed(SDLK_LEFT)) 
     {
-        camera->Move(glm::vec2(-cameraSpeed, -cameraSpeed));  // Move camera left
+        camera->Move(glm::vec2(-cameraSpeed, cameraSpeed));  // Move camera left
     }
     if (inputManager->IsKeyPressed(SDLK_RIGHT)) 
     {
-        camera->Move(glm::vec2(cameraSpeed, cameraSpeed));   // Move camera right
+        camera->Move(glm::vec2(cameraSpeed, -cameraSpeed));   // Move camera right
     }
 
     // Rotate the camera
@@ -135,7 +135,7 @@ void Game::HandleInput()
 
     if (inputManager->IsKeyJustPressed(SDLK_0))
     {
-        map->UpdateChunkRenderBuffer(*camera, true);
+        map->UpdateMapRenderBuffers(*camera, true);
     }
 
     if (inputManager->IsKeyJustPressed(SDLK_9))
@@ -152,7 +152,9 @@ void Game::HandleInput()
 }
 
 void Game::Update() 
-{}
+{
+    // map->UpdateMapRenderBuffers(*camera, false);
+}
 
 void Game::Render() 
 {

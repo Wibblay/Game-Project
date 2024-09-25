@@ -1,9 +1,14 @@
-#ifndef RENDERER_H
-#define RENDERER_H
+#pragma once
 
+#include <vector>
+#include <unordered_map>
+#include <memory>
+#include <GL/glew.h>
+#include <glm/glm.hpp>
+#include "Tile.h"
 #include "Map.h"
 #include "Camera.h"
-#include "Tile.h"
+#include "Shader.h"
 
 class Renderer 
 {
@@ -15,12 +20,18 @@ public:
     void RenderMap(Map& map, const Camera& camera); // Render the map based on the camera's position
 
 private:
-    void PrepTilesForRender(Chunk& chunk, std::vector<std::reference_wrapper<Tile>>& tilesToRender, const glm::vec2& cameraCoords, const float& zoomLevel, const int& rotation);
-    void RenderTile(const Tile& tile, const float& tileSize, const int& rotation);  // Render a single tile
-    void RenderTopFace(const Tile& tile, const float& tileSize);
-    void RenderSideFaces(const Tile& tile, const float& tileSize);
-    void RenderLeftFace(const Tile& tile, const float& tileSize);
-    void RenderRightFace(const Tile& tile, const float& tileSize);
-};
+    void SetupBuffers();
+    void UpdateInstanceBuffer(const std::vector<TileRenderData>& tileData, const int& VAO, const int& instanceVBO);
 
-#endif
+    glm::mat4 ComputeProjectionMatrix(int windowWidth, int windowHeight);
+
+    GLuint tileVAO;
+    GLuint tileVBO;
+    GLuint tileInstanceVBO;
+    GLuint tileEBO;
+
+    Shader tileShaderProgram;
+
+    glm::mat2 isoMatrix;
+    std::vector<glm::mat2> rotationMatrices;
+};

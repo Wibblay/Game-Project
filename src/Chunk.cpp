@@ -25,23 +25,19 @@ void Chunk::GenerateHeights(Noise& noiseGenerator)
     // Iterate over each tile and assign a height value based on Perlin noise
     for (Tile& tile : tiles) 
     {
-        // Calculate the world position of the tile relative to chunk start
-        float worldX = chunkCoords.x + tile.tileCoords.x;
-        float worldY = chunkCoords.y + tile.tileCoords.y;
-
         // Get the noise value for this tile 
-        float height = noiseGenerator.GetNoise(worldX, worldY); // Noise in [-1, 1]
-        tile.height = (height + 1.0f) * 0.25f;  
+        float height = noiseGenerator.GetNoise(tile.tileCoords.x, tile.tileCoords.y); // Noise in [-1, 1]
+        tile.height = (height + 1.0f) * 5.0f;  
         
-        if (tile.height <= MapConfig::WATER_NOISE_THRESHOLD)
+        if (tile.height <= 2.0f)
         {
             tile.type = 2; // Water
-            //tile.height = MapConfig::WATER_NOISE_THRESHOLD - 0.05;
+            tile.height = 2.0f;
         }
-        else if (tile.height <= MapConfig::LOWER_HILL_NOISE_THRESHOLD)
+        else if (tile.height >= 8.0f)
         {
             tile.type = 1; // Grass
-            //tile.height = MapConfig::WATER_NOISE_THRESHOLD;
+            tile.height = 8.0f;
         }
         else if (tile.height <= MapConfig::UPPER_HILL_NOISE_THRESHOLD)
         {
