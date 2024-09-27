@@ -144,6 +144,19 @@ void Shader::setVec2(const std::string& name, const glm::vec2& value) const
     }
 }
 
+void Shader::setVec3(const std::string& name, const glm::vec3& value) const 
+{
+    GLint location = glGetUniformLocation(ID, name.c_str());
+    if (location != -1) 
+    {
+        glUniform3fv(location, 1, &value[0]);
+    } 
+    else 
+    {
+        std::cerr << "Uniform '" << name << "' not found in shader.\n";
+    }
+}
+
 void Shader::setFloat(const std::string& name, float value) const 
 {
     GLint location = glGetUniformLocation(ID, name.c_str());
@@ -155,6 +168,19 @@ void Shader::setFloat(const std::string& name, float value) const
     {
         std::cerr << "Uniform '" << name << "' not found in shader.\n";
     }
+}
+
+void Shader::setBool(const std::string& name, bool value) const
+{
+   GLint location = glGetUniformLocation(ID, name.c_str());
+    if (location != -1) 
+    {
+        glUniform1i(location, static_cast<int>(value));
+    } 
+    else 
+    {
+        std::cerr << "Uniform '" << name << "' not found in shader.\n";
+    } 
 }
 
 void Shader::checkCompileErrors(GLuint shader, std::string type) 

@@ -6,12 +6,12 @@ Chunk::Chunk(glm::vec2 chunkCoords, Noise& noiseGenerator)
     : chunkCoords(chunkCoords) 
 {
     // Create a grid of tiles
-    for (int y = 0; y < MapConfig::CHUNK_SIZE; ++y) 
+    for (int y = 0; y < GlobalConfig::CHUNK_SIZE; ++y) 
     {
-        for (int x = 0; x < MapConfig::CHUNK_SIZE; ++x) 
+        for (int x = 0; x < GlobalConfig::CHUNK_SIZE; ++x) 
         {
-            tiles.push_back(Tile(glm::vec2(chunkCoords.x * MapConfig::CHUNK_SIZE + x, 
-                                            chunkCoords.y * MapConfig::CHUNK_SIZE + y)));  // Initialize all tiles with type 1
+            tiles.push_back(Tile(glm::vec2(chunkCoords.x * GlobalConfig::CHUNK_SIZE + x, 
+                                            chunkCoords.y * GlobalConfig::CHUNK_SIZE + y)));  // Initialize all tiles with type 1
         }
     }
 
@@ -26,29 +26,33 @@ void Chunk::GenerateHeights(Noise& noiseGenerator)
     for (Tile& tile : tiles) 
     {
         // Get the noise value for this tile 
-        float height = noiseGenerator.GetNoise(tile.tileCoords.x, tile.tileCoords.y); // Noise in [-1, 1]
-        tile.height = (height + 1.0f) * 5.0f;  
+        tile.height = noiseGenerator.GetNoise(tile.tileCoords.x, tile.tileCoords.y); // Noise in [0, 1]
+        //std::cout << height << std::endl;
+        tile.type = 1; 
         
-        if (tile.height <= 2.0f)
+        if (tile.height <= TerrainConfig::WATER_THRESHOLD_PCNT)
         {
-            tile.type = 2; // Water
-            tile.height = 2.0f;
+            tile.type = 2;
+            tile.height = TerrainConfig::WATER_THRESHOLD_PCNT - 0.025f;
         }
-        else if (tile.height >= 8.0f)
+        else if (tile.height <= TerrainConfig::LOWER_HILL_THRESHOLD_PCNT)
         {
-            tile.type = 1; // Grass
-            tile.height = 8.0f;
+            tile.height = TerrainConfig::WATER_THRESHOLD_PCNT;
+            tile.type = 1;
         }
-        else if (tile.height <= MapConfig::UPPER_HILL_NOISE_THRESHOLD)
+        else if (tile.height <= TerrainConfig::UPPER_HILL_THRESHOLD_PCNT)
         {
-            tile.type = 3; //Uneven
-            //tile.height -= MapConfig::WATER_NOISE_THRESHOLD;
+            tile.height -= (TerrainConfig::LOWER_HILL_THRESHOLD_PCNT - TerrainConfig::WATER_THRESHOLD_PCNT);
+            tile.type = 1;
         }
         else
         {
-            tile.type = 4; //Hill
-            //tile.height = MapConfig::WATER_NOISE_THRESHOLD + MapConfig::UPPER_HILL_NOISE_THRESHOLD - MapConfig::LOWER_HILL_NOISE_THRESHOLD;
+            tile.height = TerrainConfig::WATER_THRESHOLD_PCNT + (TerrainConfig::UPPER_HILL_THRESHOLD_PCNT - TerrainConfig::LOWER_HILL_THRESHOLD_PCNT);
+            tile.type = 1;
         }
+
+        tile.height *= TerrainConfig::MAX_TERRAIN_HEIGHT;
+        //std::cout << tile.height << std::endl;
     }
 }
 

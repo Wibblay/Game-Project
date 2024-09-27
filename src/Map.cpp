@@ -11,14 +11,15 @@ Map::Map(Noise& noise) : mapNoise(noise),
 
 void Map::InitializeTileTypeColors() {
     // For now, only one type is used
-    tileTypeColorMap[1] = glm::vec3(0.14f, 0.9f, 0.37f);  // Green color for terrain type 0
+    tileTypeColorMap[1] = glm::vec3(0.11f, 0.54f, 0.23f);  // Green color for flat grass
+    tileTypeColorMap[2] = glm::vec3(0.19f, 0.43f, 0.76f); // Blue color for water
     // Add more mappings as needed
 }
 
 // Update the render buffer with chunks around the camera
 void Map::UpdateChunkRenderBuffer(const Camera& camera, const bool& forceBufferUpdate) 
 {
-    glm::vec2 centerChunkCoords = glm::floor(camera.GetCoords() / static_cast<float>(MapConfig::CHUNK_SIZE));
+    glm::vec2 centerChunkCoords = glm::floor(camera.GetCoords() / static_cast<float>(GlobalConfig::CHUNK_SIZE));
     if (forceBufferUpdate || centerChunkCoords != prevCenterChunkCoords) 
     {   
 
@@ -57,8 +58,7 @@ void Map::UpdateTileRenderBuffer(const Camera& camera)
     tileRenderBuffer.clear();
     glm::vec2 cameraPosition = camera.GetCoords();
     int cameraRotation = camera.GetRotation();
-    float halfTileSize = camera.GetZoomLevel() * 0.5f;
-    glm::mat2 transformMatrix = Map::isoMatrix * Map::rotationMatrices[cameraRotation] * halfTileSize;
+    float zoomLevel = camera.GetZoomLevel();
 
     for (const auto& chunkPtr : chunkRenderBuffer)
     {
@@ -67,22 +67,20 @@ void Map::UpdateTileRenderBuffer(const Camera& camera)
             const auto& tiles = chunkPtr->GetTiles();
             for (const auto& tile: tiles)
             {
-                TileRenderData tileRenderData;
-                tileRenderData.tileCoords = tile.tileCoords;
-                tileRenderData.height = tile.height; 
-                tileRenderData.color = glm::vec3(0.14f, 0.9f, 0.37f);//tileTypeColorMap[tile.type];
-                tileRenderData.sideFacesVisibleFlag = tile.sideFacesVisibleFlags[cameraRotation];
-                tileRenderBuffer.push_back(tileRenderData);
+                if (L1Distance(tile.tileCoords, cameraPosition) <= 1500.0 / zoomLevel)
+                {
+                    TileRenderData tileRenderData;
+                    tileRenderData.tileCoords = tile.tileCoords;
+                    tileRenderData.height = tile.height; 
+                    tileRenderData.color = tileTypeColorMap[tile.type];
+                    tileRenderData.sideFacesVisibleFlag = tile.sideFacesVisibleFlags[cameraRotation];
+                    tileRenderBuffer.push_back(tileRenderData);
+                }
+                
             }
         }
     }
 
-    // std::sort(tileRenderBuffer.begin(), tileRenderBuffer.end(), [](const TileRenderData& a, const TileRenderData& b) 
-    // {
-    //     float sortKeyA = a.tileCoords.x + a.tileCoords.y;
-    //     float sortKeyB = b.tileCoords.x + b.tileCoords.y;
-    //     return sortKeyA < sortKeyB;
-    // });
 }
 
 void Map::UpdateMapRenderBuffers(const Camera& camera, const bool& forceChunkBufferUpdate) 
@@ -104,4 +102,9 @@ std::shared_ptr<Chunk>& Map::GetChunk(const glm::vec2& chunkCoords)
         it = fullChunkMap.emplace(chunkCoords, std::make_shared<Chunk>(chunkCoords, mapNoise)).first;
     }
     return it->second;
+}
+
+float Map::L1Distance(const glm::vec2& vec1, const glm::vec2& vec2)
+{
+    return std::abs(vec1.x - vec2.x) + std::abs(vec1.y - vec2.y);
 }

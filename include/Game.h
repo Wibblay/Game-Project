@@ -32,9 +32,6 @@ private:
     Map* map;
     Camera* camera;
     InputManager* inputManager;
-
-    int windowWidth, windowHeight;
-    const char* title;
 };
 
 #endif //GAME_H

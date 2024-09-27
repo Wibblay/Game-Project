@@ -121,7 +121,7 @@ void Renderer::RenderMap(Map& map, const Camera& camera)
 
     UpdateInstanceBuffer(tileData, tileVAO, tileInstanceVBO);
 
-    glm::mat4 projection = ComputeProjectionMatrix(WindowConfig::DEFAULT_WINDOW_WIDTH, WindowConfig::DEFAULT_WINDOW_HEIGHT);
+    glm::mat4 projection = ComputeProjectionMatrix(GlobalConfig::DEFAULT_WINDOW_WIDTH, GlobalConfig::DEFAULT_WINDOW_HEIGHT);
 
     float tileSize = camera.GetZoomLevel();
     int rotation = camera.GetRotation();
@@ -138,8 +138,33 @@ void Renderer::RenderMap(Map& map, const Camera& camera)
     tileShaderProgram.setFloat("tileSize", tileSize);
     tileShaderProgram.setVec2("cameraPosition", cameraPosition);
 
+    tileShaderProgram.setBool("isWireframe", false);
+
     // Draw side faces using glDrawElementsInstanced
     glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(tileData.size()));
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    // Optionally set the line width
+    glLineWidth(1.5f);
+
+    // Disable depth writes to prevent z-fighting
+    glDepthMask(GL_FALSE);
+
+    // Set isWireframe to true and set outline color
+    tileShaderProgram.setBool("isWireframe", true);
+    tileShaderProgram.setVec3("outlineColor", glm::vec3(0.6f, 0.6f, 0.6f)); // Black outline
+
+    // Draw only the top faces in wireframe
+    // The indices for the top faces start at offset = 12 * sizeof(GLuint)
+    //glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(12 * sizeof(GLuint)), static_cast<GLsizei>(tileData.size()));
+    glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_INT, (void*)(0), static_cast<GLsizei>(tileData.size()));
+
+    // Re-enable depth writes
+    glDepthMask(GL_TRUE);
+
+    // Reset polygon mode
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glBindVertexArray(0);
     glUseProgram(0);
@@ -179,10 +204,10 @@ void Renderer::UpdateInstanceBuffer(const std::vector<TileRenderData>& tileData,
 
 glm::mat4 Renderer::ComputeProjectionMatrix(int windowWidth, int windowHeight) {
     // Orthographic projection adjusted for isometric view
-    float left = -windowWidth / 2.0f;
-    float right = windowWidth / 2.0f;
-    float bottom = -windowHeight / 2.0f;
-    float top = windowHeight / 2.0f;
+    float left = -windowWidth * 0.5f;
+    float right = windowWidth * 0.5f;
+    float bottom = -windowHeight * 0.5f;
+    float top = windowHeight * 0.5f;
     float near = -1000.0f;
     float far = 1000.0f;
 

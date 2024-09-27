@@ -1,6 +1,6 @@
 # Compiler and linker
 CC = g++
-CFLAGS = -I include -I /ucrt64/include/SDL2 -I /ucrt64/include/GLM
+CFLAGS = -I include -I /ucrt64/include/SDL2 -I /ucrt64/include/GLM -MMD -MP
 LDFLAGS = -L /ucrt64/lib -lmingw32 -lSDL2main -lSDL2 -lopengl32 -lglew32
 
 # Directories
@@ -18,6 +18,9 @@ SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 # Object files
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 
+# Dependency files
+DEPS = $(OBJS:.o=.d)
+
 # Build rules
 .PHONY: all clean copy_shaders
 
@@ -28,6 +31,8 @@ $(TARGET): $(OBJS)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
+
+-include $(DEPS)
 
 $(BUILD_DIR):
 	mkdir $(BUILD_DIR)

@@ -39,11 +39,11 @@ void InputManager::ProcessInput()
         {
             if (event.wheel.y > 0) // Scroll up
             { 
-                scrollDelta = CameraConfig::ZOOM_INCREMENT_VALUE;
+                scrollDelta = 1.0f;
             }
             else if (event.wheel.y < 0) // Scroll down
             { 
-                scrollDelta = -CameraConfig::ZOOM_INCREMENT_VALUE;
+                scrollDelta = -1.0f;
             }
         }
     }

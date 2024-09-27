@@ -1,5 +1,4 @@
-#ifndef MAP_H
-#define MAP_H
+#pragma once
 
 #include <unordered_map>
 #include <memory>
@@ -31,6 +30,7 @@ public:
     std::vector<TileRenderData>& CollectTileRenderData(const Camera& camera);
 
     std::shared_ptr<Chunk>& GetChunk(const glm::vec2& chunkCoords);                       // Get a single chunk
+    static float L1Distance(const glm::vec2& vec1, const glm::vec2& vec2);
 
 private: 
     void UpdateTileRenderBuffer(const Camera& camera);
@@ -48,5 +48,3 @@ private:
                                                     glm::mat2(0.0f, 1.0f, -1.0f, 0.0f)};
     const glm::mat2 isoMatrix = glm::mat2(1.0f, -1.0f, 1.0f, 1.0f);
 };
-
-#endif //MAP_H

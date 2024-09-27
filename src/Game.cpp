@@ -5,9 +5,7 @@
 #include "Config.h"
 
 Game::Game() : isRunning(false), window(nullptr), glContext(nullptr),
-    renderer(nullptr), map(nullptr), camera(nullptr), inputManager(nullptr),
-    windowWidth(WindowConfig::DEFAULT_WINDOW_HEIGHT), windowHeight(WindowConfig::DEFAULT_WINDOW_HEIGHT), 
-    title(WindowConfig::WINDOW_TITLE) {}
+    renderer(nullptr), map(nullptr), camera(nullptr), inputManager(nullptr) {}
 
 Game::~Game() 
 {
@@ -25,10 +23,6 @@ Game::~Game()
 
 void Game::Init() 
 {
-    windowWidth = WindowConfig::DEFAULT_WINDOW_WIDTH;
-    windowHeight = WindowConfig::DEFAULT_WINDOW_HEIGHT;
-    title = WindowConfig::WINDOW_TITLE;
-
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) 
     {
@@ -37,7 +31,7 @@ void Game::Init()
     }
 
     // Create SDL Window
-    window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowWidth, windowHeight, SDL_WINDOW_OPENGL);
+    window = SDL_CreateWindow(GlobalConfig::WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, GlobalConfig::DEFAULT_WINDOW_WIDTH, GlobalConfig::DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_OPENGL);
     if (!window) 
     {
         std::cerr << "Failed to create SDL window: " << SDL_GetError() << std::endl;
@@ -67,7 +61,7 @@ void Game::Init()
     }
 
     // Set OpenGL attributes (clear color, depth test, etc.)
-    glViewport(0, 0, windowWidth, windowHeight);
+    glViewport(0, 0, GlobalConfig::DEFAULT_WINDOW_WIDTH, GlobalConfig::DEFAULT_WINDOW_HEIGHT);
     glEnable(GL_DEPTH_TEST);
 
     // Initialize game components
@@ -75,7 +69,7 @@ void Game::Init()
     renderer->InitOpenGL();
 
     camera = new Camera();        // Initialize the camera
-    noise = new Noise(MapConfig::MAP_NOISE_SEED);
+    noise = new Noise(GlobalConfig::MAP_NOISE_SEED);
     map = new Map(*noise);              // Initialize the procedural map
     map->UpdateMapRenderBuffers(*camera, true);
     inputManager = new InputManager();  // Initialize input manager
@@ -147,13 +141,13 @@ void Game::HandleInput()
     float scrollDelta = inputManager->GetScrollDelta();
     if (scrollDelta != 0.0f) 
     {
-        camera->Zoom(scrollDelta * 0.1f);  // Scale the zoom change to a smaller amount
+        camera->Zoom(scrollDelta * CameraConfig::ZOOM_INCREMENT_VALUE);  // Scale the zoom change to a smaller amount
     }
 }
 
 void Game::Update() 
 {
-    // map->UpdateMapRenderBuffers(*camera, false);
+    map->UpdateMapRenderBuffers(*camera, false);
 }
 
 void Game::Render() 

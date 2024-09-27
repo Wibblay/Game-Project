@@ -53,46 +53,11 @@ float Camera::GetZoomLevel() const
 void Camera::RotateClockwise() 
 {
     rotation = (rotation + 1) % 4;
-
-    float translationAmount = 1.0f * zoomLevel;  
-    switch (rotation) 
-    {
-        case 1:  // 90° clockwise
-            Move(glm::vec2(translationAmount, -translationAmount));
-            break;
-        case 2:  // 180° (flipped)
-            Move(glm::vec2(-translationAmount, -translationAmount));
-            break;
-        case 3:  // 270° clockwise
-            Move(glm::vec2(-translationAmount, translationAmount));
-            break;
-        case 0:  // Back to 0° (reset)
-            Move(glm::vec2(translationAmount, translationAmount));
-            break;
-    }  
 }
 
 void Camera::RotateCounterclockwise() 
 {
     rotation = (rotation - 1 + 4) % 4;
-
-    // Translate the camera to compensate for the rotation
-    float translationAmount = 1.0f * zoomLevel;
-    switch (rotation) 
-    {
-        case 3:  // 270° counterclockwise
-            Move(glm::vec2(translationAmount, -translationAmount));
-            break;
-        case 2:  // 180° (flipped)
-            Move(glm::vec2(-translationAmount, -translationAmount));
-            break;
-        case 1:  // 90° counterclockwise
-            Move(glm::vec2(-translationAmount, translationAmount));
-            break;
-        case 0:  // Back to 0° (reset)
-            Move(glm::vec2(translationAmount, translationAmount));
-            break;
-    }  
 }
 
 int Camera::GetRotation() const 

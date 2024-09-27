@@ -34,10 +34,10 @@ void main()
 
     if (aTopFaceFlag < 0.5)
     {
-        fragColor = aColor + vec3(0.0, 1.0, 0.0);
+        fragColor = aColor + vec3(0.0, 0.2, 0.0);
     }
     else
     {
-        fragColor = aColor;
+        fragColor = aColor + (aHeight * 0.05 * vec3(1.0, 1.0, 1.0));
     }
 }

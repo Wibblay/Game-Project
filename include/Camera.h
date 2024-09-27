@@ -1,7 +1,14 @@
-#ifndef CAMERA_H
-#define CAMERA_H
+#pragma once
 
 #include <glm\glm.hpp>
+
+namespace CameraConfig
+{
+    inline constexpr float MIN_ZOOM_LEVEL = 20.0f;       // Minimum zoom level
+    inline constexpr float MAX_ZOOM_LEVEL = 50.0f;       // Maximum zoom level
+    inline constexpr float DEFAULT_ZOOM_LEVEL = 35.0f;   // Default zoom level
+    inline constexpr float ZOOM_INCREMENT_VALUE = 1.0f; //Size of zoom increment
+}
 
 class Camera 
 {
@@ -30,5 +37,3 @@ private:
     float zoomLevel;
     int rotation;       // 0 = 0°, 1 = 90°, 2 = 180°, 3 = 270°
 };
-
-#endif 

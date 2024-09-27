@@ -6,6 +6,14 @@
 #include <vector>
 #include <glm/glm.hpp>
 
+namespace TerrainConfig
+{
+    inline constexpr float MAX_TERRAIN_HEIGHT = 10.0f;
+    inline constexpr float WATER_THRESHOLD_PCNT = 0.3f;
+    inline constexpr float LOWER_HILL_THRESHOLD_PCNT = 0.57f;
+    inline constexpr float UPPER_HILL_THRESHOLD_PCNT = 0.61f;
+}
+
 class Chunk 
 {
 public:

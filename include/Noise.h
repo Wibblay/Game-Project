@@ -1,5 +1,4 @@
-#ifndef NOISE_H
-#define NOISE_H
+#pragma once
 
 #include "FastNoiseLite.h"
 
@@ -13,6 +12,8 @@ public:
 
 private:
     FastNoiseLite noiseGenerator;   // FastNoise generator instance
-};
 
-#endif 
+    const size_t octaves;              // Number of octaves
+    const float persistence;     // Controls amplitude of octaves
+    const float lacunarity;      // Controls frequency of octaves
+};
