@@ -1,6 +1,6 @@
 #include "Map.h"
+
 #include "Config.h"
-#include <iostream>
 #include <algorithm>
 
 Map::Map(Noise& noise) : mapNoise(noise), 
@@ -9,8 +9,8 @@ Map::Map(Noise& noise) : mapNoise(noise),
     InitializeTileTypeColors();
 }
 
-void Map::InitializeTileTypeColors() {
-    // For now, only one type is used
+void Map::InitializeTileTypeColors() 
+{
     tileTypeColorMap[1] = glm::vec3(0.11f, 0.54f, 0.23f);  // Green color for flat grass
     tileTypeColorMap[2] = glm::vec3(0.19f, 0.43f, 0.76f); // Blue color for water
     // Add more mappings as needed
@@ -22,10 +22,8 @@ void Map::UpdateChunkRenderBuffer(const Camera& camera, const bool& forceBufferU
     glm::vec2 centerChunkCoords = glm::floor(camera.GetCoords() / static_cast<float>(GlobalConfig::CHUNK_SIZE));
     if (forceBufferUpdate || centerChunkCoords != prevCenterChunkCoords) 
     {   
-
         chunkRenderBuffer.clear();
 
-        // Update the 3x3 render buffer with chunks around the camera
         for (int dy = -1; dy <= 1; ++dy) 
         {
             for (int dx = -1; dx <= 1; ++dx) 
@@ -45,7 +43,6 @@ void Map::UpdateChunkRenderBuffer(const Camera& camera, const bool& forceBufferU
                     fullChunkMap[chunkCoords] = chunkPtr;
                 }
 
-                // Move the chunk from the preload cache into the render buffer
                 chunkRenderBuffer.push_back(chunkPtr);
             }
         }
@@ -64,8 +61,8 @@ void Map::UpdateTileRenderBuffer(const Camera& camera)
     {
         if (chunkPtr)
         {
-            const auto& tiles = chunkPtr->GetTiles();
-            for (const auto& tile: tiles)
+            const std::vector<Tile>& tiles = chunkPtr->GetTiles();
+            for (const Tile& tile: tiles)
             {
                 if (L1Distance(tile.tileCoords, cameraPosition) <= 1500.0 / zoomLevel)
                 {
@@ -89,7 +86,7 @@ void Map::UpdateMapRenderBuffers(const Camera& camera, const bool& forceChunkBuf
     UpdateTileRenderBuffer(camera);
 }
 
-std::vector<TileRenderData>& Map::CollectTileRenderData(const Camera& camera)
+std::vector<TileRenderData>& Map::GetTileRenderData(const Camera& camera)
 {
     return tileRenderBuffer;
 }

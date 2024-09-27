@@ -1,5 +1,4 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include <GL/glew.h>
@@ -15,7 +14,3 @@ namespace GlobalConfig
     inline constexpr int CHUNK_SIZE = 64;       //Width of a chunk in tiles
     inline constexpr int MAP_NOISE_SEED = 1337; //Seed used for map perlin noise
 }
-
-
-
-#endif

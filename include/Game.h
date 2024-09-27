@@ -1,5 +1,4 @@
-#ifndef GAME_H
-#define GAME_H
+#pragma once
 
 #include <SDL2/SDL.h>
 #include "Camera.h"
@@ -15,13 +14,14 @@ public:
 
     void Init();                                         // Initialize SDL, OpenGL, etc.
     void Run();                                          // Main game loop
-    void HandleInput();                                  // Handle user input
-    void Update();                                       // Update game state
-    void Render();                                       // Render the game
 
     bool IsRunning();                                    // Check if the game is running
 
 private:
+    void HandleInput();                                  // Handle user input
+    void Update();                                       // Update game state
+    void Render();                                       // Render the game
+
     bool isRunning;
 
     SDL_Window* window;
@@ -33,5 +33,3 @@ private:
     Camera* camera;
     InputManager* inputManager;
 };
-
-#endif //GAME_H

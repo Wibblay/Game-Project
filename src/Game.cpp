@@ -1,7 +1,7 @@
 #include "Game.h"
+
 #include <iostream>
 #include <GL/glew.h>
-//#include <thread>
 #include "Config.h"
 
 Game::Game() : isRunning(false), window(nullptr), glContext(nullptr),
@@ -31,7 +31,9 @@ void Game::Init()
     }
 
     // Create SDL Window
-    window = SDL_CreateWindow(GlobalConfig::WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, GlobalConfig::DEFAULT_WINDOW_WIDTH, GlobalConfig::DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_OPENGL);
+    window = SDL_CreateWindow(GlobalConfig::WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, 
+                            SDL_WINDOWPOS_CENTERED, GlobalConfig::DEFAULT_WINDOW_WIDTH, 
+                            GlobalConfig::DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_OPENGL);
     if (!window) 
     {
         std::cerr << "Failed to create SDL window: " << SDL_GetError() << std::endl;
@@ -67,7 +69,6 @@ void Game::Init()
     // Initialize game components
     renderer = new Renderer();
     renderer->InitOpenGL();
-
     camera = new Camera();        // Initialize the camera
     noise = new Noise(GlobalConfig::MAP_NOISE_SEED);
     map = new Map(*noise);              // Initialize the procedural map
@@ -102,11 +103,11 @@ void Game::HandleInput()
     const float cameraSpeed = 2.0f / camera->GetZoomLevel();
     if (inputManager->IsKeyPressed(SDLK_UP)) 
     {
-        camera->Move(glm::vec2(2 * cameraSpeed, 2 * cameraSpeed));  // Move camera up
+        camera->Move(2.0f * glm::vec2(cameraSpeed, cameraSpeed));  // Move camera up
     }
     if (inputManager->IsKeyPressed(SDLK_DOWN)) 
     {
-        camera->Move(glm::vec2(-2 * cameraSpeed, -2 * cameraSpeed));   // Move camera down
+        camera->Move(2.0f * glm::vec2(-cameraSpeed, -cameraSpeed));   // Move camera down
     }
     if (inputManager->IsKeyPressed(SDLK_LEFT)) 
     {
@@ -141,7 +142,7 @@ void Game::HandleInput()
     float scrollDelta = inputManager->GetScrollDelta();
     if (scrollDelta != 0.0f) 
     {
-        camera->Zoom(scrollDelta * CameraConfig::ZOOM_INCREMENT_VALUE);  // Scale the zoom change to a smaller amount
+        camera->Zoom(scrollDelta);  // Scale the zoom change to a smaller amount
     }
 }
 

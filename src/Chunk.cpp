@@ -1,4 +1,5 @@
 #include "Chunk.h"
+
 #include "Config.h"
 #include <iostream>
 
@@ -6,12 +7,13 @@ Chunk::Chunk(glm::vec2 chunkCoords, Noise& noiseGenerator)
     : chunkCoords(chunkCoords) 
 {
     // Create a grid of tiles
+    tiles.reserve(GlobalConfig::CHUNK_SIZE * GlobalConfig::CHUNK_SIZE);
     for (int y = 0; y < GlobalConfig::CHUNK_SIZE; ++y) 
     {
         for (int x = 0; x < GlobalConfig::CHUNK_SIZE; ++x) 
         {
             tiles.push_back(Tile(glm::vec2(chunkCoords.x * GlobalConfig::CHUNK_SIZE + x, 
-                                            chunkCoords.y * GlobalConfig::CHUNK_SIZE + y)));  // Initialize all tiles with type 1
+                                            chunkCoords.y * GlobalConfig::CHUNK_SIZE + y))); 
         }
     }
 
@@ -25,9 +27,8 @@ void Chunk::GenerateHeights(Noise& noiseGenerator)
     // Iterate over each tile and assign a height value based on Perlin noise
     for (Tile& tile : tiles) 
     {
-        // Get the noise value for this tile 
         tile.height = noiseGenerator.GetNoise(tile.tileCoords.x, tile.tileCoords.y); // Noise in [0, 1]
-        //std::cout << height << std::endl;
+
         tile.type = 1; 
         
         if (tile.height <= TerrainConfig::WATER_THRESHOLD_PCNT)
@@ -52,7 +53,6 @@ void Chunk::GenerateHeights(Noise& noiseGenerator)
         }
 
         tile.height *= TerrainConfig::MAX_TERRAIN_HEIGHT;
-        //std::cout << tile.height << std::endl;
     }
 }
 
@@ -61,7 +61,7 @@ std::vector<Tile>& Chunk::GetTiles()
     return tiles;
 }
 
-const glm::vec2 Chunk::GetCoords() const
+const glm::vec2& Chunk::GetCoords() const
 {
     return chunkCoords;
 }

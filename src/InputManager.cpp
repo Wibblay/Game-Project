@@ -59,9 +59,10 @@ bool InputManager::IsKeyPressed(SDL_Keycode key)
     return false;
 }
 
-// Check if the key was just pressed (pressed down but not held)
+
 bool InputManager::IsKeyJustPressed(SDL_Keycode key) 
 {
+    // Check if the key was just pressed (pressed down but not held)
     if (keyStates[key] && !previousKeyStates[key]) 
     {
         return true;

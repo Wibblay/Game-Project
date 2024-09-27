@@ -1,5 +1,4 @@
-#ifndef CHUNK_H
-#define CHUNK_H
+#pragma once
 
 #include "Tile.h"
 #include "Noise.h"
@@ -20,8 +19,8 @@ public:
     Chunk(glm::vec2 chunkCoords, Noise& noiseGenerator);
     ~Chunk();
 
-    std::vector<Tile>& GetTiles();              // Get all the tiles
-    const glm::vec2 GetCoords() const;                      // Get chunk coords
+    std::vector<Tile>& GetTiles();                          // Get all the tiles
+    const glm::vec2& GetCoords() const;                      // Get chunk coords
 
 private:
     void GenerateHeights(Noise& noiseGenerator);            // Method to generate tile heights using noise
@@ -29,5 +28,3 @@ private:
     std::vector<Tile> tiles;                                // Grid of tiles (64x64)
     glm::vec2 chunkCoords;                                  // Position of the chunk in world coordinates
 };
-
-#endif //CHUNK_H

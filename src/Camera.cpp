@@ -1,8 +1,11 @@
 #include "Camera.h"
+
 #include "Config.h"
 #include <iostream>
 
-Camera::Camera() : cameraCoords(glm::vec2(0.0f, 0.0f)), zoomLevel(CameraConfig::DEFAULT_ZOOM_LEVEL), rotation(0) {}
+Camera::Camera() : cameraCoords(glm::vec2(0.0f, 0.0f)), zoomLevel(35.0f), rotation(0),
+                    minZoomLevel(20.0f), maxZoomLevel(50.0f), zoomIncrement(1.0f)
+{}
 
 Camera::~Camera() {}
 
@@ -10,17 +13,17 @@ void Camera::Move(glm::vec2 delta)
 {
     switch (rotation) 
     {
-        case 0:  // 0° (default)
+        case 0:  // NE (default)
             cameraCoords += delta;
             break;
-        case 1:  // 90° clockwise
+        case 1:  // NW 
             cameraCoords.x -= delta.y;
             cameraCoords.y += delta.x;
             break;
-        case 2:  // 180° (flipped)
+        case 2:  // SW (flipped)
             cameraCoords -= delta;
             break;
-        case 3:  // 270° clockwise
+        case 3:  // SE
             cameraCoords.x += delta.y;
             cameraCoords.y -= delta.x;
             break;
@@ -32,16 +35,21 @@ void Camera::SetPosition(glm::vec2 newPosition)
     cameraCoords = newPosition;
 }
 
-void Camera::Zoom(float zoomFactor) 
+glm::vec2 Camera::GetCoords() const
 {
-    zoomLevel += zoomFactor;
-    if (zoomLevel < CameraConfig::MIN_ZOOM_LEVEL) 
+    return cameraCoords;
+}
+
+void Camera::Zoom(const float& zoomDirection) 
+{
+    zoomLevel += zoomDirection * zoomIncrement;
+    if (zoomLevel < minZoomLevel) 
     {
-        zoomLevel = CameraConfig::MIN_ZOOM_LEVEL;
+        zoomLevel = minZoomLevel;
     }
-    if (zoomLevel > CameraConfig::MAX_ZOOM_LEVEL) 
+    if (zoomLevel > maxZoomLevel) 
     {
-        zoomLevel = CameraConfig::MAX_ZOOM_LEVEL;
+        zoomLevel = maxZoomLevel;
     }
 }
 
@@ -65,7 +73,3 @@ int Camera::GetRotation() const
     return rotation;
 }
 
-glm::vec2 Camera::GetCoords() const
-{
-    return cameraCoords;
-}

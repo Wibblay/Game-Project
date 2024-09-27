@@ -25,11 +25,12 @@ public:
     Map(Noise& noise);
     ~Map() = default;
 
-    void UpdateChunkRenderBuffer(const Camera& camera, const bool& forceBufferUpdate);    //Prepare chunks for rendering
-    void UpdateMapRenderBuffers(const Camera& camera, const bool& forceChunkBufferUpdate);
-    std::vector<TileRenderData>& CollectTileRenderData(const Camera& camera);
+    void UpdateChunkRenderBuffer(const Camera& camera, const bool& forceBufferUpdate);     // Gather chunks for rendering
+    void UpdateMapRenderBuffers(const Camera& camera, const bool& forceChunkBufferUpdate); // Update chunk and tile render buffer
+    
+    std::vector<TileRenderData>& GetTileRenderData(const Camera& camera);                  // Return tile render data
+    std::shared_ptr<Chunk>& GetChunk(const glm::vec2& chunkCoords);                        // Get a single chunk
 
-    std::shared_ptr<Chunk>& GetChunk(const glm::vec2& chunkCoords);                       // Get a single chunk
     static float L1Distance(const glm::vec2& vec1, const glm::vec2& vec2);
 
 private: 
@@ -37,14 +38,9 @@ private:
     void InitializeTileTypeColors();
 
     std::unordered_map<glm::vec2, std::shared_ptr<Chunk>, vec2_hash> fullChunkMap;  // All generated chunks
-    std::vector<std::shared_ptr<Chunk>> chunkRenderBuffer;                  // 3x3 render buffer
-    std::vector<TileRenderData> tileRenderBuffer;
+    std::vector<std::shared_ptr<Chunk>> chunkRenderBuffer;                          // 3x3 buffer of chunks around the camera
+    std::vector<TileRenderData> tileRenderBuffer;                                   // All tiles to be rendered
     glm::vec2 prevCenterChunkCoords;
     Noise& mapNoise;
     std::unordered_map<uint8_t, glm::vec3> tileTypeColorMap;
-    const std::vector<glm::mat2> rotationMatrices = {glm::mat2(1.0f, 0.0f, 0.0f, 1.0f),
-                                                    glm::mat2(0.0f, -1.0f, 1.0f, 0.0f),
-                                                    glm::mat2(-1.0f, 0.0f, 0.0f, -1.0f),
-                                                    glm::mat2(0.0f, 1.0f, -1.0f, 0.0f)};
-    const glm::mat2 isoMatrix = glm::mat2(1.0f, -1.0f, 1.0f, 1.0f);
 };

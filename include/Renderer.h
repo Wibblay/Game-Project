@@ -16,8 +16,8 @@ public:
     Renderer();
     ~Renderer();
 
-    void InitOpenGL();                                    // Initialize OpenGL settings
-    void RenderMap(Map& map, const Camera& camera); // Render the map based on the camera's position
+    void InitOpenGL();                                // Initialize OpenGL settings
+    void RenderMap(Map& map, const Camera& camera);   // Render the map based on the camera's position
 
 private:
     void SetupBuffers();

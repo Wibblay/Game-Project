@@ -1,4 +1,5 @@
 #include "Renderer.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 #include "Config.h"
 #include <iostream>
@@ -71,7 +72,7 @@ void Renderer::SetupBuffers()
         8, 9, 6
     };
 
-    //Side face buffers
+    //Buffers
 
     // Generate and bind VAO and VBO
     glGenVertexArrays(1, &tileVAO);
@@ -110,13 +111,11 @@ void Renderer::SetupBuffers()
 
 void Renderer::RenderMap(Map& map, const Camera& camera) 
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    std::vector<TileRenderData>& tileData = map.CollectTileRenderData(camera);
+    std::vector<TileRenderData>& tileData = map.GetTileRenderData(camera);
     if (tileData.empty()) 
     {
         std::cout << "No data to render" << std::endl;
-        return;  // Nothing to render
+        return;
     }
 
     UpdateInstanceBuffer(tileData, tileVAO, tileInstanceVBO);
@@ -155,15 +154,9 @@ void Renderer::RenderMap(Map& map, const Camera& camera)
     tileShaderProgram.setBool("isWireframe", true);
     tileShaderProgram.setVec3("outlineColor", glm::vec3(0.6f, 0.6f, 0.6f)); // Black outline
 
-    // Draw only the top faces in wireframe
-    // The indices for the top faces start at offset = 12 * sizeof(GLuint)
-    //glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(12 * sizeof(GLuint)), static_cast<GLsizei>(tileData.size()));
     glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_INT, (void*)(0), static_cast<GLsizei>(tileData.size()));
 
-    // Re-enable depth writes
     glDepthMask(GL_TRUE);
-
-    // Reset polygon mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glBindVertexArray(0);
